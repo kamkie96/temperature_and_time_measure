@@ -1,0 +1,10 @@
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\bin\Debug\Temperature_Forms.exe.config
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\bin\Debug\Temperature_Forms.exe
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\bin\Debug\Temperature_Forms.pdb
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.csprojResolveAssemblyReference.cache
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.Form1.resources
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.Properties.Resources.resources
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.csproj.GenerateResource.Cache
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.csproj.CoreCompileInputs.cache
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.exe
+c:\users\pati\source\repos\Temperature_Forms\Temperature_Forms\obj\Debug\Temperature_Forms.pdb
