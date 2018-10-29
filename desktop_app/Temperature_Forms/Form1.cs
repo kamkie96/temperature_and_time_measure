@@ -17,6 +17,7 @@ namespace Temperature_Forms
         static bool _continue;
         static SerialPort serialPort = new SerialPort();
 
+        string dataIn;
         string name;
         string message;
         StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
@@ -67,40 +68,81 @@ namespace Temperature_Forms
 
         private void btnDataClick(object sender, EventArgs e)
         {
-            Thread readThread = new Thread(Read);
-
-            btnData.Text = "Open";
-            serialPort.PortName = Convert.ToString(cbPorts.Text);
-            serialPort.BaudRate = Convert.ToInt32(cbBaudRate.Text);
-            serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), cbParity.Text);
-            serialPort.DataBits = Convert.ToInt16(cbDataBits.Text);
-            serialPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), cbStopBits.Text);
-
-            serialPort.ReadTimeout = 500;
-            serialPort.WriteTimeout = 500;
-
-            serialPort.Open();
-
-            _continue = true;
-            readThread.Start();
-
-            //Console.WriteLine("Name: ");
-            name = serialPort.ReadExisting();
-
-            while (_continue)
+            if (serialPort.IsOpen)
             {
-                message = serialPort.ReadExisting();
-
-                SetText(message);
+                serialPort.DataReceived += new SerialDataReceivedEventHandler(Data_Received);
             }
-
-            readThread.Join();
-            serialPort.Close();
         }
 
-        private void SetText(string text)
+        private void Data_Received(object sender, SerialDataReceivedEventArgs e)
         {
-            this.rtbIncomingData.Text += text;
+                dataIn = serialPort.ReadExisting();
+                this.Invoke(new EventHandler(SetText));
+        }
+        private void SetText(object sender, EventArgs e)
+        {
+            rtbIncomingData.AppendText(dataIn);
+            
+        }
+
+        private void btnOpen_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                serialPort.PortName = Convert.ToString(cbPorts.Text);
+                serialPort.BaudRate = Convert.ToInt32(cbBaudRate.Text);
+                serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), cbParity.Text);
+                serialPort.DataBits = Convert.ToInt16(cbDataBits.Text);
+                serialPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), cbStopBits.Text);
+  
+                cbPorts.Enabled = false;
+                cbParity.Enabled = false;
+                cbStopBits.Enabled = false;
+                cbDataBits.Enabled = false;
+                cbBaudRate.Enabled = false;
+
+                serialPort.ReadTimeout = 500;
+                serialPort.WriteTimeout = 500;
+                serialPort.Open();
+                progressBar.Value = 100;
+                rtbIncomingData.ReadOnly = false;
+            }
+            catch(Exception error)
+            {
+                MessageBox.Show(error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            if(serialPort.IsOpen)
+            {
+                serialPort.Close();
+                progressBar.Value = 0;
+                rtbIncomingData.ReadOnly = true;
+                //rtbIncomingData.ScrollBars = RichTextBoxScrollBars.Both;
+
+            }
+            rtbIncomingData.ScrollBars = RichTextBoxScrollBars.Both;
+            //GetVerticalScrollPos(rtbIncomingData);
+            
+            
+        }
+
+        private void rtbIncomingData_TextChanged(object sender, EventArgs e)
+        {
+            rtbIncomingData.SelectionStart = rtbIncomingData.Text.Length;
+            rtbIncomingData.ScrollToCaret();
+            rtbIncomingData.Focus();
+        }
+
+        public static double GetVerticalScrollPos(RichTextBox box)
+        {
+            int index = box.GetCharIndexFromPosition(new Point(1, 1));
+            int topline = box.GetLineFromCharIndex(index);
+            int lines = box.Lines.Length;
+            return lines == 0 ? 0 : 100.0 * topline / lines;
         }
     }
 }

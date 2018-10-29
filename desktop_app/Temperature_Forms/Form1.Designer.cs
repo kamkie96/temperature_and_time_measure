@@ -40,64 +40,77 @@
             this.tbStopBits = new System.Windows.Forms.TextBox();
             this.tbParity = new System.Windows.Forms.TextBox();
             this.tbBaudRate = new System.Windows.Forms.TextBox();
+            this.btnOpen = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // rtbIncomingData
             // 
-            this.rtbIncomingData.Location = new System.Drawing.Point(27, 286);
+            this.rtbIncomingData.Enabled = false;
+            this.rtbIncomingData.Location = new System.Drawing.Point(27, 361);
             this.rtbIncomingData.Name = "rtbIncomingData";
+            this.rtbIncomingData.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.rtbIncomingData.ShowSelectionMargin = true;
-            this.rtbIncomingData.Size = new System.Drawing.Size(743, 312);
+            this.rtbIncomingData.Size = new System.Drawing.Size(790, 329);
             this.rtbIncomingData.TabIndex = 9;
             this.rtbIncomingData.Text = "";
+            this.rtbIncomingData.WordWrap = false;
+            this.rtbIncomingData.TextChanged += new System.EventHandler(this.rtbIncomingData_TextChanged);
             // 
             // cbPorts
             // 
             this.cbPorts.FormattingEnabled = true;
-            this.cbPorts.Location = new System.Drawing.Point(329, 27);
+            this.cbPorts.Location = new System.Drawing.Point(401, 27);
             this.cbPorts.Name = "cbPorts";
             this.cbPorts.Size = new System.Drawing.Size(370, 28);
             this.cbPorts.TabIndex = 10;
+            this.cbPorts.Text = "COM3";
             // 
             // cbStopBits
             // 
             this.cbStopBits.FormattingEnabled = true;
-            this.cbStopBits.Location = new System.Drawing.Point(329, 151);
+            this.cbStopBits.Location = new System.Drawing.Point(401, 153);
             this.cbStopBits.Name = "cbStopBits";
             this.cbStopBits.Size = new System.Drawing.Size(370, 28);
             this.cbStopBits.TabIndex = 11;
+            this.cbStopBits.Text = "One";
             // 
             // cbParity
             // 
             this.cbParity.FormattingEnabled = true;
-            this.cbParity.Location = new System.Drawing.Point(329, 112);
+            this.cbParity.Location = new System.Drawing.Point(401, 112);
             this.cbParity.Name = "cbParity";
             this.cbParity.Size = new System.Drawing.Size(370, 28);
             this.cbParity.TabIndex = 12;
+            this.cbParity.Text = "None";
             // 
             // cbBaudRate
             // 
             this.cbBaudRate.FormattingEnabled = true;
-            this.cbBaudRate.Location = new System.Drawing.Point(329, 70);
+            this.cbBaudRate.Location = new System.Drawing.Point(401, 70);
             this.cbBaudRate.Name = "cbBaudRate";
             this.cbBaudRate.Size = new System.Drawing.Size(370, 28);
             this.cbBaudRate.TabIndex = 13;
+            this.cbBaudRate.Text = "115200";
             // 
             // cbDataBits
             // 
             this.cbDataBits.FormattingEnabled = true;
-            this.cbDataBits.Location = new System.Drawing.Point(329, 195);
+            this.cbDataBits.Location = new System.Drawing.Point(401, 195);
             this.cbDataBits.Name = "cbDataBits";
             this.cbDataBits.Size = new System.Drawing.Size(370, 28);
             this.cbDataBits.TabIndex = 14;
+            this.cbDataBits.Text = "8";
             // 
             // btnData
             // 
-            this.btnData.Location = new System.Drawing.Point(216, 240);
+            this.btnData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.btnData.Location = new System.Drawing.Point(401, 253);
             this.btnData.Name = "btnData";
-            this.btnData.Size = new System.Drawing.Size(78, 31);
+            this.btnData.Size = new System.Drawing.Size(142, 43);
             this.btnData.TabIndex = 15;
-            this.btnData.Text = "RUN";
+            this.btnData.Text = "Receive Data";
             this.btnData.UseVisualStyleBackColor = true;
             this.btnData.Click += new System.EventHandler(this.btnDataClick);
             // 
@@ -151,12 +164,44 @@
             this.tbBaudRate.Text = "BaudRate";
             this.tbBaudRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // btnOpen
+            // 
+            this.btnOpen.Location = new System.Drawing.Point(27, 253);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Size = new System.Drawing.Size(99, 43);
+            this.btnOpen.TabIndex = 21;
+            this.btnOpen.Text = "OPEN";
+            this.btnOpen.UseVisualStyleBackColor = true;
+            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
+            // 
+            // btnClose
+            // 
+            this.btnClose.Location = new System.Drawing.Point(147, 253);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(98, 43);
+            this.btnClose.TabIndex = 22;
+            this.btnClose.Text = "CLOSE";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // progressBar
+            // 
+            this.progressBar.ForeColor = System.Drawing.Color.GreenYellow;
+            this.progressBar.Location = new System.Drawing.Point(27, 314);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(218, 30);
+            this.progressBar.TabIndex = 23;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.DarkGray;
-            this.ClientSize = new System.Drawing.Size(816, 639);
+            this.ClientSize = new System.Drawing.Size(849, 711);
+            this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.btnClose);
+            this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.tbBaudRate);
             this.Controls.Add(this.tbParity);
             this.Controls.Add(this.tbStopBits);
@@ -190,6 +235,9 @@
         private System.Windows.Forms.TextBox tbStopBits;
         private System.Windows.Forms.TextBox tbParity;
         private System.Windows.Forms.TextBox tbBaudRate;
+        private System.Windows.Forms.Button btnOpen;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }
 
