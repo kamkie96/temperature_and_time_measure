@@ -50,9 +50,9 @@
             this.rtbIncomingData.Enabled = false;
             this.rtbIncomingData.Location = new System.Drawing.Point(27, 361);
             this.rtbIncomingData.Name = "rtbIncomingData";
-            this.rtbIncomingData.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.rtbIncomingData.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
             this.rtbIncomingData.ShowSelectionMargin = true;
-            this.rtbIncomingData.Size = new System.Drawing.Size(790, 329);
+            this.rtbIncomingData.Size = new System.Drawing.Size(791, 329);
             this.rtbIncomingData.TabIndex = 9;
             this.rtbIncomingData.Text = "";
             this.rtbIncomingData.WordWrap = false;
@@ -106,7 +106,7 @@
             // btnData
             // 
             this.btnData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnData.Location = new System.Drawing.Point(401, 253);
+            this.btnData.Location = new System.Drawing.Point(515, 253);
             this.btnData.Name = "btnData";
             this.btnData.Size = new System.Drawing.Size(142, 43);
             this.btnData.TabIndex = 15;
@@ -189,7 +189,7 @@
             this.progressBar.ForeColor = System.Drawing.Color.GreenYellow;
             this.progressBar.Location = new System.Drawing.Point(27, 314);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(218, 30);
+            this.progressBar.Size = new System.Drawing.Size(791, 30);
             this.progressBar.TabIndex = 23;
             // 
             // Form1
@@ -198,7 +198,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.DarkGray;
-            this.ClientSize = new System.Drawing.Size(849, 711);
+            this.ClientSize = new System.Drawing.Size(850, 717);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnOpen);

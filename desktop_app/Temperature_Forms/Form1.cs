@@ -14,12 +14,9 @@ namespace Temperature_Forms
 {
     public partial class Form1 : Form
     {
-        static bool _continue;
         static SerialPort serialPort = new SerialPort();
 
         string dataIn;
-        string name;
-        string message;
         StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
 
@@ -54,18 +51,6 @@ namespace Temperature_Forms
             cbDataBits.Items.Add(16);
         }
 
-        public static void Read()
-        {
-            while (_continue)
-            {
-                try
-                {
-                    string message = serialPort.ReadExisting();
-                }
-                catch (TimeoutException) { }
-            }
-        }
-
         private void btnDataClick(object sender, EventArgs e)
         {
             if (serialPort.IsOpen)
@@ -82,7 +67,6 @@ namespace Temperature_Forms
         private void SetText(object sender, EventArgs e)
         {
             rtbIncomingData.AppendText(dataIn);
-            
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
@@ -121,28 +105,15 @@ namespace Temperature_Forms
                 serialPort.Close();
                 progressBar.Value = 0;
                 rtbIncomingData.ReadOnly = true;
-                //rtbIncomingData.ScrollBars = RichTextBoxScrollBars.Both;
-
             }
-            rtbIncomingData.ScrollBars = RichTextBoxScrollBars.Both;
-            //GetVerticalScrollPos(rtbIncomingData);
-            
-            
+            rtbIncomingData.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
+            rtbIncomingData.Enabled = true;
         }
 
         private void rtbIncomingData_TextChanged(object sender, EventArgs e)
         {
             rtbIncomingData.SelectionStart = rtbIncomingData.Text.Length;
             rtbIncomingData.ScrollToCaret();
-            rtbIncomingData.Focus();
-        }
-
-        public static double GetVerticalScrollPos(RichTextBox box)
-        {
-            int index = box.GetCharIndexFromPosition(new Point(1, 1));
-            int topline = box.GetLineFromCharIndex(index);
-            int lines = box.Lines.Length;
-            return lines == 0 ? 0 : 100.0 * topline / lines;
         }
     }
 }
