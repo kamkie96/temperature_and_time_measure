@@ -9,24 +9,25 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Temperature_Forms
 {
-    public partial class Form1 : Form
+    public partial class TemperatureReadingForm : Form
     {
         static SerialPort serialPort = new SerialPort();
-
         string dataIn;
         StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
-
-        public Form1()
+        public TemperatureReadingForm()
         {
             InitializeComponent();
 
             cbPorts.Items.Add("COM1");
             cbPorts.Items.Add("COM2");
             cbPorts.Items.Add("COM3");
+            cbPorts.Items.Add("COM4");
+            cbPorts.Items.Add("COM5");
 
             cbBaudRate.Items.Add(300);
             cbBaudRate.Items.Add(600);
@@ -49,6 +50,7 @@ namespace Temperature_Forms
 
             cbDataBits.Items.Add(8);
             cbDataBits.Items.Add(16);
+
         }
 
         private void btnDataClick(object sender, EventArgs e)
@@ -61,12 +63,25 @@ namespace Temperature_Forms
 
         private void Data_Received(object sender, SerialDataReceivedEventArgs e)
         {
-                dataIn = serialPort.ReadExisting();
-                this.Invoke(new EventHandler(SetText));
+            dataIn = serialPort.ReadExisting();
+            this.Invoke(new EventHandler(SetText));  
         }
         private void SetText(object sender, EventArgs e)
         {
             rtbIncomingData.AppendText(dataIn);
+
+            using (var fs = new FileStream(@"C:\Users\pati\Desktop\test.txt", FileMode.Truncate, FileAccess.Write, FileShare.ReadWrite))
+            {
+                using (var writer = new StreamWriter(fs, Encoding.GetEncoding(28591)))
+                {
+                    for (int i = 0; i < rtbIncomingData.Lines.Length; i++)
+                    {
+                        writer.WriteLine(rtbIncomingData.Lines[i]);
+                    }
+                    writer.Flush();
+                }
+            }
+
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
@@ -78,7 +93,7 @@ namespace Temperature_Forms
                 serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), cbParity.Text);
                 serialPort.DataBits = Convert.ToInt16(cbDataBits.Text);
                 serialPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), cbStopBits.Text);
-  
+
                 cbPorts.Enabled = false;
                 cbParity.Enabled = false;
                 cbStopBits.Enabled = false;
@@ -90,8 +105,9 @@ namespace Temperature_Forms
                 serialPort.Open();
                 progressBar.Value = 100;
                 rtbIncomingData.ReadOnly = false;
+
             }
-            catch(Exception error)
+            catch (Exception error)
             {
                 MessageBox.Show(error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -100,12 +116,13 @@ namespace Temperature_Forms
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            if(serialPort.IsOpen)
+            if (serialPort.IsOpen)
             {
                 serialPort.Close();
                 progressBar.Value = 0;
                 rtbIncomingData.ReadOnly = true;
             }
+
             rtbIncomingData.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
             rtbIncomingData.Enabled = true;
         }
@@ -114,6 +131,11 @@ namespace Temperature_Forms
         {
             rtbIncomingData.SelectionStart = rtbIncomingData.Text.Length;
             rtbIncomingData.ScrollToCaret();
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            rtbIncomingData.Clear();
         }
     }
 }
