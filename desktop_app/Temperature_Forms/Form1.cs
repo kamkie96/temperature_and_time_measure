@@ -10,6 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Windows.Documents;
+using System.Windows.Controls;
+using System.Xaml;
 
 namespace Temperature_Forms
 {
@@ -125,17 +128,45 @@ namespace Temperature_Forms
 
             rtbIncomingData.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
             rtbIncomingData.Enabled = true;
+
+            StreamWriter streamWriter = new StreamWriter(@"C:\Users\pati\Desktop\file.txt" ,false);
+            string[] RichTextBoxLines = rtbIncomingData.Lines;
+            string[] text;
+
+            foreach(string el in RichTextBoxLines)
+            {
+                text = el.Split('|');
+                foreach (string line in text)
+                {
+                    streamWriter.WriteLine(line);
+                }
+            }
+            //foreach (string line in text)
+            //{
+            //    streamWriter.WriteLine(line);
+            //}
+            ////streamWriter.Write();
+            streamWriter.Close();
+
+
         }
 
         private void rtbIncomingData_TextChanged(object sender, EventArgs e)
         {
             rtbIncomingData.SelectionStart = rtbIncomingData.Text.Length;
             rtbIncomingData.ScrollToCaret();
+            //StringFromRichTextBox(rtbIncomingData);
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             rtbIncomingData.Clear();
+        }
+
+        private string StringFromRichTextBox(System.Windows.Controls.RichTextBox rtb)
+        {
+            TextRange textRange = new TextRange(rtb.Document.ContentStart, rtb.Document.ContentEnd); 
+            return textRange.Text;
         }
     }
 }

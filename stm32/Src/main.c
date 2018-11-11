@@ -96,15 +96,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
 	 ++cnt;
 
-	 size = sprintf(&data[0], "Data -> %u:%u:%u. Czas -> %u:%u:%u\n\r",
-			 myDate.Date, myDate.Month, myDate.Year,
-			 myTime.Hours, myTime.Minutes, myTime.Seconds);
-	 HAL_UART_Transmit_IT(&huart2, data, size);
-	 HAL_GPIO_TogglePin(LO_GPIO_Port, LO_Pin);
-
 	 vSense = (supplyVoltage * adcMeasurment) / (adcResolution - 1);
 	 temperature = ((vSense - v25) / avgSlope) + 25;
-	 // question is, how to send float via UART ?
+
+	 size = sprintf(&data[0], "|%u:%u:%u|%f|\n\r",
+			 	 	myTime.Hours,
+					myTime.Minutes,
+					myTime.Seconds,
+					temperature);
+
+	 HAL_UART_Transmit_IT(&huart2, data, size);
+	 HAL_GPIO_TogglePin(LO_GPIO_Port, LO_Pin);
 }
 
 /* USER CODE END PFP */
