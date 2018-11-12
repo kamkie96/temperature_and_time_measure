@@ -48,6 +48,8 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+I2C_HandleTypeDef hi2c1;
+
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim10;
@@ -57,19 +59,60 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+/* SysTick interrupt */
+static uint16_t counter = 0;
+#define MSG_BUFFER 50
+
 /* Real Time Clock */
 RTC_TimeTypeDef myTime;
 RTC_DateTypeDef myDate;
+
 
 /* Temperature in uC */
 uint16_t adcMeasurment;
 float temperature;
 float vSense;
-
 const float v25 = 0.76; // [Volts]
 const float avgSlope = 0.0025; //[Volts/degree]
 const float supplyVoltage = 3.0; // [Volts]
 const float adcResolution = 4096.0;
+
+
+/* MCP9808 */
+#define MCP9808_ADDRESS (0x18 << 1)
+#define MCP9808_CONFIG_REG (0x01)
+#define MCP9808_TEMPERATURE_REG (0x05)
+
+uint8_t mcpTemp[2] = {0};
+
+
+/* LSM303 */
+#define LSM303_ACC_ADDRESS (0x19 << 1) // adres akcelerometru: 0011001x
+#define LSM303_ACC_CTRL_REG1_A 0x20 // rejestr ustawien 1
+#define LSM303_ACC_Z_H_A 0x2D // wyzszy bajt danych osi Z
+#define LSM303_ACC_X_L_A 0x28 // mlodszy bajt danych osi X
+
+// mlodszy bajt danych osi X z najstarszym bitem ustawionym na 1 w celu
+// wymuszenia autoinkrementacji adresow rejestru w urzadzeniu docelowym
+// (zeby moc odczytac wiecej danych na raz)
+#define LSM303_ACC_X_L_A_MULTI_READ (LSM303_ACC_X_L_A | 0x80)
+
+#define LSM303_ACC_XYZ_ENABLE 0x07 // 0000 0111
+
+// Maski bitowe
+#define LSM303_ACC_100HZ 0x50 //0101 0000
+
+#define LSM303_ACC_RESOLUTION 2.0 // Maksymalna wartosc przyspieszenia [g]
+
+uint8_t accData[6] = {0};
+
+int16_t Xacc = 0;
+int16_t Yacc = 0;
+int16_t Zacc = 0;
+
+float Xacc_g = 0;
+float Yacc_g = 0;
+float Zacc_g = 0;
 
 /* USER CODE END PV */
 
@@ -81,31 +124,94 @@ static void MX_RTC_Init(void);
 static void MX_TIM10_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
+void HAL_SYSTICK_Callback(void)
+{
+	if (counter == 1)
+	{
+		HAL_RTC_GetDate(&hrtc, &myDate, RTC_FORMAT_BIN);
+
+		char data[sizeof(myDate.WeekDay) + sizeof(myDate.Month) + sizeof(myDate.Year) + MSG_BUFFER] = {0};
+		const char* msg = "|d|%u:%u:%u.\n\r";
+
+		uint16_t size = (uint16_t)sprintf(&data[0], msg,
+										  myDate.WeekDay,
+										  myDate.Month,
+										  myDate.Year);
+
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
+	}
+
+	if (counter % 300 == 0)
+	{
+		HAL_I2C_Mem_Read(&hi2c1,
+						 LSM303_ACC_ADDRESS,
+						 LSM303_ACC_X_L_A_MULTI_READ,
+						 1,
+						 &accData[0],
+						 6,
+						 100);
+
+		Xacc = ((accData[1] << 8) | accData[0]);
+		Yacc = ((accData[3] << 8) | accData[2]);
+		Zacc = ((accData[5] << 8) | accData[4]);
+
+		Xacc_g = ((float)Xacc * LSM303_ACC_RESOLUTION) / (float)INT16_MAX;
+		Yacc_g = ((float)Yacc * LSM303_ACC_RESOLUTION) / (float)INT16_MAX;
+		Zacc_g = ((float)Zacc * LSM303_ACC_RESOLUTION) / (float)INT16_MAX;
+
+		char data[sizeof(Xacc_g) + sizeof(Yacc_g) + sizeof(Zacc_g) + MSG_BUFFER] = {0};
+		const char* msg = "|a|%f:%f:%f.\n\r";
+
+
+		uint16_t size = (uint16_t)sprintf(&data[0], msg,
+										  Xacc_g,
+										  Yacc_g,
+										  Zacc_g);
+
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
+	}
+
+	if (counter == 990)
+	{
+		vSense = (supplyVoltage * adcMeasurment) / (adcResolution - 1);
+		temperature = ((vSense - v25) / avgSlope) + 25;
+
+		char data[sizeof(temperature) + MSG_BUFFER] = {0};
+		const char* msg = "|u|%f.\n\r";
+
+		uint16_t size = (uint16_t)sprintf(&data[0], msg,
+						   	   	   	   	  temperature);
+
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
+	}
+
+	if (counter == 999)
+	{
+		HAL_RTC_GetTime(&hrtc, &myTime, RTC_FORMAT_BIN);
+
+		char data[sizeof(myTime.Hours) + sizeof(myTime.Minutes) + sizeof(myTime.Seconds) + MSG_BUFFER] = {0};
+		const char* msg = "|t|%u:%u:%u.\n\r";
+
+		uint16_t size = (uint16_t)sprintf(&data[0], msg,
+										  myTime.Hours,
+										  myTime.Minutes,
+										  myTime.Seconds);
+
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
+
+		counter = 0;
+	}
+
+	++counter;
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
-	 static uint16_t cnt = 0;
-	 uint8_t data[100];
-	 uint16_t size = 0;
-
-	 HAL_RTC_GetDate(&hrtc, &myDate, RTC_FORMAT_BIN);
-	 HAL_RTC_GetTime(&hrtc, &myTime, RTC_FORMAT_BIN);
-
-	 ++cnt;
-
-	 vSense = (supplyVoltage * adcMeasurment) / (adcResolution - 1);
-	 temperature = ((vSense - v25) / avgSlope) + 25;
-
-	 size = sprintf(&data[0], "|%u:%u:%u|%f|\n\r",
-			 	 	myTime.Hours,
-					myTime.Minutes,
-					myTime.Seconds,
-					temperature);
-
-	 HAL_UART_Transmit_IT(&huart2, data, size);
 	 HAL_GPIO_TogglePin(LO_GPIO_Port, LO_Pin);
 }
 
@@ -149,10 +255,14 @@ int main(void)
   MX_TIM10_Init();
   MX_USART2_UART_Init();
   MX_ADC1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim10);
-  HAL_ADC_Start_DMA(&hadc1, &adcMeasurment, 1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adcMeasurment, 1);
+
+  uint8_t settings = LSM303_ACC_XYZ_ENABLE | LSM303_ACC_100HZ;
+  HAL_I2C_Mem_Write(&hi2c1, LSM303_ACC_ADDRESS, LSM303_ACC_CTRL_REG1_A, 1, &settings, 1, 100);
 
   /* USER CODE END 2 */
 
@@ -165,8 +275,8 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-	  HAL_RTC_GetDate(&hrtc, &myDate, RTC_FORMAT_BIN);
-	  HAL_RTC_GetTime(&hrtc, &myTime, RTC_FORMAT_BIN);
+	  HAL_GPIO_TogglePin(LR_GPIO_Port, LR_Pin);
+
   }
   /* USER CODE END 3 */
 
@@ -270,6 +380,26 @@ static void MX_ADC1_Init(void)
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* I2C1 init function */
+static void MX_I2C1_Init(void)
+{
+
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -413,6 +543,7 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, LG_Pin|LO_Pin|LR_Pin|LB_Pin, GPIO_PIN_RESET);

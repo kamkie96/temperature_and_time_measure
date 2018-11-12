@@ -24,6 +24,8 @@ Src/stm32f4xx_it.o: ../Src/stm32f4xx_it.c \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
+ C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h \
+ C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc.h \
@@ -82,6 +84,10 @@ C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_D
 C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h:
 
 C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h:
+
+C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h:
+
+C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h:
 
 C:/Users/pati/Desktop/temperature_and_time_measure/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 
