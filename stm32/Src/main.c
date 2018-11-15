@@ -131,21 +131,6 @@ static void MX_I2C1_Init(void);
 
 void HAL_SYSTICK_Callback(void)
 {
-	if (counter == 1)
-	{
-		HAL_RTC_GetDate(&hrtc, &myDate, RTC_FORMAT_BIN);
-
-		char data[sizeof(myDate.WeekDay) + sizeof(myDate.Month) + sizeof(myDate.Year) + MSG_BUFFER] = {0};
-		const char* msg = "|d|%u:%u:%u.\n\r";
-
-		uint16_t size = (uint16_t)sprintf(&data[0], msg,
-										  myDate.WeekDay,
-										  myDate.Month,
-										  myDate.Year);
-
-		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
-	}
-
 	if (counter % 300 == 0)
 	{
 		HAL_I2C_Mem_Read(&hi2c1,
@@ -172,6 +157,21 @@ void HAL_SYSTICK_Callback(void)
 										  Xacc_g,
 										  Yacc_g,
 										  Zacc_g);
+
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
+	}
+
+	if (counter == 980)
+	{
+		HAL_RTC_GetDate(&hrtc, &myDate, RTC_FORMAT_BIN);
+
+		char data[sizeof(myDate.WeekDay) + sizeof(myDate.Month) + sizeof(myDate.Year) + MSG_BUFFER] = {0};
+		const char* msg = "|d|%u:%u:%u.\n\r";
+
+		uint16_t size = (uint16_t)sprintf(&data[0], msg,
+										  myDate.WeekDay,
+										  myDate.Month,
+										  myDate.Year);
 
 		HAL_UART_Transmit_IT(&huart2, (uint8_t*)&data[0], size);
 	}

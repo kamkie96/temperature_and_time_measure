@@ -31,23 +31,22 @@ endif
 all: stm32.elf
 
 # Tool invocations
-stm32.elf: $(OBJS) $(USER_OBJS) ../STM32F401VCTx_FLASH.ld
+stm32.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -u _printf_float -T"../STM32F401VCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "stm32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -u _printf_float -T"../STM32F401VCTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -lm -o "stm32.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
-	-$(RM) *
+	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS) stm32.elf
 	-@echo ' '
 
 post-build:
 	-@echo 'Generating hex and Printing size information:'
-	arm-none-eabi-objcopy -O ihex "stm32.elf" "stm32.hex"
-	arm-none-eabi-size "stm32.elf"
+	-arm-none-eabi-objcopy -O ihex "stm32.elf" "stm32.hex" && arm-none-eabi-size "stm32.elf"
 	-@echo ' '
 
 .PHONY: all clean dependents

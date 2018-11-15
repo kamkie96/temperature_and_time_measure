@@ -13,6 +13,7 @@ using System.IO;
 using System.Windows.Documents;
 using System.Windows.Controls;
 using System.Xaml;
+using System.Runtime.InteropServices;
 
 namespace Temperature_Forms
 {
@@ -20,7 +21,6 @@ namespace Temperature_Forms
     {
         static SerialPort serialPort = new SerialPort();
         string dataIn;
-        StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
         public TemperatureReadingForm()
         {
@@ -67,25 +67,50 @@ namespace Temperature_Forms
         private void Data_Received(object sender, SerialDataReceivedEventArgs e)
         {
             dataIn = serialPort.ReadExisting();
-            this.Invoke(new EventHandler(SetText));  
+            this.Invoke(new EventHandler(SetText));
+            this.Invoke(new EventHandler(SetActualValues));
         }
+
         private void SetText(object sender, EventArgs e)
         {
             rtbIncomingData.AppendText(dataIn);
-
-            using (var fs = new FileStream(@"C:\Users\pati\Desktop\test.txt", FileMode.Truncate, FileAccess.Write, FileShare.ReadWrite))
-            {
-                using (var writer = new StreamWriter(fs, Encoding.GetEncoding(28591)))
-                {
-                    for (int i = 0; i < rtbIncomingData.Lines.Length; i++)
-                    {
-                        writer.WriteLine(rtbIncomingData.Lines[i]);
-                    }
-                    writer.Flush();
-                }
-            }
-
         }
+
+        private void SetActualValues(object sender, EventArgs e)
+        {
+                 for (int i = 0; i<rtbIncomingData.Lines.Length; i++)
+            {
+                string str = rtbIncomingData.Lines[i];
+                if (str.Contains("|d|"))
+                {
+                    tBDate.Text = str;
+                }
+                else if (str.Contains("|t|"))
+                {
+                    tBTime.Text = str;
+                }
+                else if (str.Contains("|u|"))
+                {
+                    tBMicroTemperature.Text = str;
+                }
+                else if (str.Contains("|a|"))
+                {
+                    tBAccelerometer.Text = str;
+                }
+                str = String.Empty;
+            }
+        }
+            //using (var fs = new FileStream(@"C:\Users\pati\Desktop\test.txt", FileMode.Truncate, FileAccess.Write, FileShare.ReadWrite))
+            //{
+            //    using (var writer = new StreamWriter(fs, Encoding.GetEncoding(28591)))
+            //    {
+            //        for (int i = 0; i < rtbIncomingData.Lines.Length; i++)
+            //        {
+            //            writer.WriteLine(rtbIncomingData.Lines[i]);
+            //        }
+            //        writer.Flush();
+            //    }
+            //}
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
@@ -123,50 +148,39 @@ namespace Temperature_Forms
             {
                 serialPort.Close();
                 progressBar.Value = 0;
-                rtbIncomingData.ReadOnly = true;
+                rtbIncomingData.ReadOnly = true; 
             }
 
             rtbIncomingData.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
             rtbIncomingData.Enabled = true;
-
-            StreamWriter streamWriter = new StreamWriter(@"C:\Users\pati\Desktop\file.txt" ,false);
-            string[] RichTextBoxLines = rtbIncomingData.Lines;
-            string[] text;
-
-            foreach(string el in RichTextBoxLines)
-            {
-                text = el.Split('|');
-                foreach (string line in text)
-                {
-                    streamWriter.WriteLine(line);
-                }
-            }
-            //foreach (string line in text)
-            //{
-            //    streamWriter.WriteLine(line);
-            //}
-            ////streamWriter.Write();
-            streamWriter.Close();
-
-
+            cbPorts.Enabled = true;
         }
 
         private void rtbIncomingData_TextChanged(object sender, EventArgs e)
         {
             rtbIncomingData.SelectionStart = rtbIncomingData.Text.Length;
             rtbIncomingData.ScrollToCaret();
-            //StringFromRichTextBox(rtbIncomingData);
+
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             rtbIncomingData.Clear();
+            tBDate.Clear();
+            tBTime.Clear();
+            tBMicroTemperature.Clear();
+            tBAccelerometer.Clear();
         }
 
-        private string StringFromRichTextBox(System.Windows.Controls.RichTextBox rtb)
+        private void TemperatureReadingForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            TextRange textRange = new TextRange(rtb.Document.ContentStart, rtb.Document.ContentEnd); 
-            return textRange.Text;
+            if (serialPort.IsOpen)
+            {
+                serialPort.DiscardOutBuffer();
+                serialPort.DiscardInBuffer();
+                serialPort.Close();
+            }
+            Application.Exit();
         }
     }
 }

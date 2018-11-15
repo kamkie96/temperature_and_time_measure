@@ -66,7 +66,7 @@ namespace temperature_measure
             try
             {
                 string message = serialPort.ReadLine();
-                Console.WriteLine("Thread works{0}\n",message);
+                Console.WriteLine("{0}\n",message);
             }
             catch (TimeoutException) { }
         }
